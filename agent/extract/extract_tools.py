@@ -25,6 +25,7 @@ import re
 import tiktoken
 import psycopg2
 from psycopg2.extras import Json
+from agent.rag.graphRag_tools import extract_and_ingest_graph
 # --- Setup (No changes needed here) ---
 load_dotenv()
 
@@ -68,7 +69,6 @@ class Document:
 
     def __repr__(self):
         return f"Document(page_content='{self.page_content[:50]}...', metadata={self.metadata})"
-
 
 def summarize_document(full_text: str) -> str:
     """
@@ -459,6 +459,7 @@ def _extract_from_document(file_path: str, extraction_prompt: str, batch_size: i
             for chunk in document_chunks:
                 save_child_to_db(chunk, parent_id)
             logging.info("Successfully processed and saved all child chunks.")
+            extract_and_ingest_graph(document_chunks)
 
         return {
             "status": "Success",
